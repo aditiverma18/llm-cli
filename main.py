@@ -35,9 +35,7 @@ def get_response(messages):
         tool_call=tool_calls[0]
         function_name=tool_call["function"]["name"]
         arguments=tool_call["function"]["arguments"]
-        print(function_name)
-        print(arguments)
-
+        
         if(function_name in tool_map):
             tool_function=tool_map[function_name]
             tool_result=tool_function(**arguments)
@@ -90,7 +88,6 @@ def main():
         messages.append({"role": "assistant", "content": assistant_response})
 
         print(f"Assistant: {assistant_response}")
-    #print(add(10,20))
 
 if __name__ =="__main__":
     main()
