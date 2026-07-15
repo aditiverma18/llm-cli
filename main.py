@@ -1,10 +1,11 @@
 import ollama
-from tools import add
+from tools import add , multiply
 tool_map={
-    "add":add
+    "add":add,
+    "multiply":multiply
 }
-tools=[{
-    "type":"function",
+tools=[
+    {"type":"function",
     "function":{
         "name":"add",
         "description":"Add two numbers",
@@ -19,7 +20,29 @@ tools=[{
             "required":["a","b"]
         }
     }
-}]
+} ,
+{
+    "type":"function",
+    "function":{
+        "name":"multiply",
+        "description":"mutiply two numbers",
+        "parameters":{
+            "type":"object",
+            "properties":{
+                "a":{"type":"number",
+                     "description":"The first number to multiply"},
+                "b":{"type":"number",
+                     "description":"The second number to mutiply"}
+            },
+            "required":["a","b"]
+        } 
+   
+     } 
+}
+
+]
+
+
 def get_response(messages):
     response = ollama.chat(
       model="llama3.1:8b",
@@ -35,7 +58,10 @@ def get_response(messages):
         tool_call=tool_calls[0]
         function_name=tool_call["function"]["name"]
         arguments=tool_call["function"]["arguments"]
-        
+
+
+
+
         if(function_name in tool_map):
             tool_function=tool_map[function_name]
             tool_result=tool_function(**arguments)
