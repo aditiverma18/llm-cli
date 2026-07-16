@@ -1,8 +1,9 @@
 import ollama
-from tools import add , multiply
+from tools import add , multiply , get_current_time
 tool_map={
     "add":add,
-    "multiply":multiply
+    "multiply":multiply,
+    "get_current_time":get_current_time
 }
 tools=[
     {"type":"function",
@@ -38,8 +39,14 @@ tools=[
         } 
    
      } 
+},
+{
+    "type":"function",
+    "function":{
+        "name":"get_current_time",
+        "description":"gets the current local time"
+     }
 }
-
 ]
 
 
