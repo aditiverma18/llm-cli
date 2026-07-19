@@ -1,5 +1,18 @@
 import requests
 import time
+import sqlite3
+
+conn=sqlite3.connect("memory.db")
+cursor = conn.cursor()
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS memory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        memory TEXT NOT NULL
+    )
+    """)
+
+conn.commit()
 def add(a,b):
     return a+b
 
@@ -92,4 +105,30 @@ def get_weather_tool(city):
     Wind Speed: {current['wind_speed_10m']} {current_units['wind_speed_10m']}  code: Weather_description: {weather_description}"""
 
     
+def save_memory(memory):
+    conn=sqlite3.connect("memory.db")
+    cursor=conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO memory(memory)
+        VALUES (?)
+    """, (memory,))
+                   
+
+    conn.commit()
+    conn.close()
     
+
+
+
+def get_all_memories():
+     conn=sqlite3.connect("memory.db")
+     cursor=conn.cursor()
+     
+     cursor.execute("""
+        SELECT memory
+        FROM memory
+    """)
+     rows=cursor.fetchall()
+     conn.close()
+     return [row[0] for row in rows]
