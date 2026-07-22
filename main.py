@@ -1,10 +1,12 @@
 import ollama
-from tools import add , multiply , get_current_time ,get_location,get_weather,get_weather_tool
+from tools import add , multiply , get_current_time ,get_location,get_weather,get_weather_tool,get_all_memories,save_memory
+
 tool_map={
     "add":add,
     "multiply":multiply,
     "get_current_time":get_current_time,
-    "get_weather_tool": get_weather_tool
+    "get_weather_tool": get_weather_tool,
+    "save_memory":save_memory
 }
 tools=[
     {"type":"function",
@@ -63,6 +65,22 @@ tools=[
    
      } 
     
+},
+{
+    "type": "function",
+    "function": {
+        "name": "save_memory",
+         "description":"save memories to the database",
+         "parameters":{
+            "type":"object",
+            "properties":{
+                "memory":{"type":"string",
+                     "description":"memory to save"}
+            },
+            "required":["memory"]
+    
+        }
+    }    
 }
 ]
 
@@ -105,19 +123,34 @@ def get_response(messages):
     assistant_response=response["message"]["content"]
     return assistant_response
 
+def build_system_prompt():
+    memories=get_all_memories()
+    memory_text="Known memories:\n"
 
-def main():
-    messages = [
-    {
-        "role": "system",
-        "content":(
-            "You are a helpful programming tutor. "
+    for memory in memories:
+        memory_text += f"- {memory}\n"
+
+    return f"""
+           "You are a helpful programming tutor. "
             "Explain concepts simply and use examples. "
             "Use tools only when they are necessary. "
             "You only have access to the tools explicitly provided to you. "
             "Never invent or mention nonexistent tools. "
             "For normal programming questions, answer directly in natural language."
-        )
+            "Known memories about the user are provided below."
+            "Use these memories directly when answering questions."
+            "Do NOT call a tool to retrieve memories."
+            "There is no get_memory tool."
+            "Only use the tools that are explicitly provided."
+
+    {memory_text}
+    """
+
+def main():
+    messages = [
+    {
+        "role": "system",
+        "content":build_system_prompt()
     }
 ]
     while True:
@@ -125,8 +158,9 @@ def main():
         if user_input.lower() == "exit":
             break
 
-        messages.append({"role": "user", "content": user_input}
-)
+        messages.append({"role": "user", "content": user_input})      
+        
+        print(messages[0]["content"])
         try:
             assistant_response = get_response(messages)
         except Exception as e:
