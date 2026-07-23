@@ -70,7 +70,7 @@ tools=[
     "type": "function",
     "function": {
         "name": "save_memory",
-         "description":"save memories to the database",
+         "description":"Save long-term user memories such as stable preferences, long-term facts, and information that will likely be useful in future conversations. Do not use this tool for temporary events, daily activities, or trivial information.",
          "parameters":{
             "type":"object",
             "properties":{
@@ -127,21 +127,27 @@ def build_system_prompt():
     memories=get_all_memories()
     memory_text="Known memories:\n"
 
-    for memory in memories:
+    if memories:
+      for memory in memories:
         memory_text += f"- {memory}\n"
-
+    else:
+        memory_text += "None\n"
     return f"""
-           "You are a helpful programming tutor. "
-            "Explain concepts simply and use examples. "
-            "Use tools only when they are necessary. "
-            "You only have access to the tools explicitly provided to you. "
-            "Never invent or mention nonexistent tools. "
-            "For normal programming questions, answer directly in natural language."
-            "Known memories about the user are provided below."
-            "Use these memories directly when answering questions."
-            "Do NOT call a tool to retrieve memories."
-            "There is no get_memory tool."
-            "Only use the tools that are explicitly provided."
+             You are a helpful programming tutor.
+
+Explain concepts clearly and use examples.
+
+Use only the provided tools when necessary.
+Do not invent tools.
+
+Known memories:
+{memory_text}
+
+Use these memories when answering.
+
+Only save long-term information that will be useful in future conversations, such as stable preferences and long-term facts.
+
+Do not save temporary events or daily activities.
 
     {memory_text}
     """
